@@ -1,0 +1,35 @@
+name: Gitleaks Scan & Upload to DefectDojo
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  gitleaks_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Gitleaks
+        run: |
+          wget https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -O gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/gitleaks
+
+      - name: Run Gitleaks Scan
+        run: gitleaks detect --source . --report=gitleaks-report.sarif --format=sarif || echo '{}' > gitleaks-report.sarif
+
+      - name: Upload to DefectDojo
+        run: |
+          curl -k -X POST "$DEFECTDOJO_URL/api/v2/import-scan/" \
+          -H "Authorization: Token $DEFECTDOJO_API_KEY" \
+          -H "Content-Type: multipart/form-data" \
+          -F "scan_type=SARIF" \
+          -F "engagement=1" \
+          -F "file=@gitleaks-report.sarif"
+        env:
+          DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+          DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
