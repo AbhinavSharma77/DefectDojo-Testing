@@ -20,7 +20,7 @@ jobs:
           gitleaks detect --verbose --redact --report-format=json --report-path=gitleaks_report.json || true
           cat gitleaks_report.json
 
-      - name: Upload Gitleaks Report to DefectDojo
+      - name: Upload Gitleaks Report to DefectDojo (Debug)
         run: |
           RESPONSE=$(curl -X POST "https://your-defectdojo-instance/api/v2/import-scan/" \
             -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
