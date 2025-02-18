@@ -1,0 +1,29 @@
+name: Gitleaks Scan and DefectDojo Integration
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch (adjust as needed)
+  pull_request:
+    branches:
+      - main  # Trigger on PR to main branch
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Gitleaks
+      run: |
+        curl -sSL https://github.com/zricethezav/gitleaks/releases/download/v8.0.1/gitleaks-linux-amd64 -o gitleaks
+        chmod +x gitleaks
+        sudo mv gitleaks /usr/local/bin/gitleaks
+
+    - name: Run Gitleaks Scan
+      run: |
+        gitleaks detect --repo-path . --json --redact
+        # You can adjust the options, such as --rules or --verbose, as needed.
+      continue-on-error: true
