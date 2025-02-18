@@ -3,15 +3,15 @@ name: Gitleaks Scan and DefectDojo Integration
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch (adjust as needed)
+      - main  # Trigger on push to the main branch (adjust as needed)
   pull_request:
     branches:
-      - main  # Trigger on PR to main branch
+      - main  # Trigger on PR to the main branch
 
 jobs:
   gitleaks:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v2
@@ -29,9 +29,9 @@ jobs:
 
     - name: Upload Gitleaks findings to DefectDojo
       env:
-        DO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}  # Store your DefectDojo API Key in GitHub Secrets
-        DO_URL: ${{ secrets.DEFECTDOJO_URL }}          # Store your DefectDojo instance URL in GitHub Secrets
-        PRODUCT_ID: ${{ secrets.DEFECTDOJO_PRODUCT_ID }}  # Store your DefectDojo Product ID in GitHub Secrets
+        DO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+        DO_URL: ${{ secrets.DEFECTDOJO_URL }}
+        PRODUCT_ID: ${{ secrets.DEFECTDOJO_PRODUCT_ID }}
       run: |
         curl -X POST $DO_URL/api/v2/import-scan/ \
         -H "Authorization: Token $DO_API_KEY" \
