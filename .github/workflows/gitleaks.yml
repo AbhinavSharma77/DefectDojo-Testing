@@ -15,16 +15,19 @@ jobs:
           chmod +x gitleaks
           sudo mv gitleaks /usr/local/bin/
 
-      - name: Run Gitleaks
+      - name: Run Gitleaks (Debug)
         run: |
-          gitleaks detect --report-format=json --report-path=gitleaks_report.json || true
+          gitleaks detect --verbose --redact --report-format=json --report-path=gitleaks_report.json || true
+          cat gitleaks_report.json
 
       - name: Upload Gitleaks Report to DefectDojo
         run: |
-          curl -X POST "https://your-defectdojo-instance/api/v2/import-scan/" \
+          RESPONSE=$(curl -X POST "https://your-defectdojo-instance/api/v2/import-scan/" \
             -H "Authorization: Token ${{ secrets.DEFECTDOJO_API_KEY }}" \
             -H "Content-Type: multipart/form-data" \
             -F "scan_type=Gitleaks Scan" \
             -F "file=@gitleaks_report.json" \
             -F "engagement=1" \
-            -F "test=1"
+            -F "test=1")
+
+          echo "DefectDojo Response: $RESPONSE"
