@@ -24,6 +24,18 @@ jobs:
 
     - name: Run Gitleaks Scan
       run: |
-        gitleaks detect --repo-path . --json --redact
-        # You can adjust the options, such as --rules or --verbose, as needed.
-      continue-on-error: true
+        gitleaks detect --repo-path . --json --redact > gitleaks_report.json
+      continue-on-error: true  # Continue even if leaks are found (for demo purposes)
+
+    - name: Upload Gitleaks findings to DefectDojo
+      env:
+        DO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}  # Store your DefectDojo API Key in GitHub Secrets
+        DO_URL: ${{ secrets.DEFECTDOJO_URL }}          # Store your DefectDojo instance URL in GitHub Secrets
+        PRODUCT_ID: ${{ secrets.DEFECTDOJO_PRODUCT_ID }}  # Store your DefectDojo Product ID in GitHub Secrets
+      run: |
+        curl -X POST $DO_URL/api/v2/import-scan/ \
+        -H "Authorization: Token $DO_API_KEY" \
+        -H "Content-Type: application/json" \
+        -F "file=@gitleaks_report.json" \
+        -F "product=$PRODUCT_ID" \
+        -F "engagement=$PRODUCT_ID"
